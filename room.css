@@ -1,0 +1,195 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #000;
+}
+
+.room-container {
+    width: 100vw;
+    height: 100vh;
+    background-image: url('assets/img/room.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    overflow: hidden;
+}
+
+.door-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 1);
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+.door-overlay.closing {
+    opacity: 1;
+}
+
+.door-overlay.opening {
+    opacity: 0;
+}
+
+/* Error 404 Display */
+.error404-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    pointer-events: none;
+}
+
+.error404-content {
+    text-align: center;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 4px solid #000;
+    border-radius: 20px;
+    box-shadow: 0 10px 0 #000, 0 0 0 4px #000;
+    max-width: 600px;
+    width: 90%;
+    animation: errorAppear 0.6s ease-out;
+    pointer-events: auto;
+}
+
+.error404-title {
+    font-size: clamp(4rem, 15vw, 10rem);
+    font-weight: 1000;
+    color: #000;
+    margin: 0 0 20px 0;
+    text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    letter-spacing: 8px;
+}
+
+.error404-message {
+    font-size: clamp(1.2rem, 4vw, 2rem);
+    font-weight: bold;
+    color: #000;
+    margin: 0 0 15px 0;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.error404-submessage {
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    color: #333;
+    margin: 0 0 30px 0;
+    font-family: Arial, sans-serif;
+}
+
+.error404-button {
+    padding: 15px 40px;
+    border: 3px solid #000;
+    border-radius: 25px;
+    background: #fff;
+    color: #000;
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-weight: bold;
+    cursor: url('assets/img/cursor_pointer.png') 16 16, pointer;
+    transition: all 0.2s ease;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    box-shadow: 0 4px 0 #000;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    min-width: 150px;
+}
+
+.error404-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #000;
+    background: #f0f0f0;
+}
+
+.error404-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #000;
+}
+
+@keyframes errorAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive adjustments for error 404 */
+@media (max-width: 768px) {
+    .error404-content {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+    
+    .error404-title {
+        letter-spacing: 4px;
+    }
+}
+
+@media (max-width: 480px) {
+    .error404-content {
+        padding: 25px 15px;
+        margin: 15px;
+    }
+    
+    .error404-title {
+        letter-spacing: 2px;
+    }
+}
+
+/* Responsive design for different screen sizes */
+@media (min-width: 1920px) {
+    .room-container {
+        background-size: 100% 100%;
+    }
+}
+
+@media (max-width: 1366px) {
+    .room-container {
+        background-size: cover;
+    }
+}
+
+@media (max-width: 1024px) {
+    .room-container {
+        background-size: cover;
+    }
+}
+
+@media (max-width: 768px) {
+    .room-container {
+        background-size: cover;
+    }
+}
+
+@media (max-width: 480px) {
+    .room-container {
+        background-size: cover;
+    }
+}
+
+
