@@ -1,3 +1,10 @@
+@font-face {
+    font-family: 'FuturaHandwritten';
+    src: url('punkboy_tbs_bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -80,7 +87,7 @@ body {
     color: #000;
     margin: 0 0 20px 0;
     text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family: 'FuturaHandwritten', Arial, sans-serif;
     letter-spacing: 8px;
 }
 
@@ -89,7 +96,7 @@ body {
     font-weight: bold;
     color: #000;
     margin: 0 0 15px 0;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family: 'FuturaHandwritten', Arial, sans-serif;
 }
 
 .error404-submessage {
@@ -109,7 +116,7 @@ body {
     font-weight: bold;
     cursor: url('assets/img/cursor_pointer.png') 16 16, pointer;
     transition: all 0.2s ease;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+    font-family: 'FuturaHandwritten', Arial, sans-serif;
     box-shadow: 0 4px 0 #000;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -143,6 +150,7 @@ body {
     .error404-content {
         padding: 30px 20px;
         margin: 20px;
+        transform: scale(0.75);
     }
     
     .error404-title {
@@ -154,6 +162,7 @@ body {
     .error404-content {
         padding: 25px 15px;
         margin: 15px;
+        transform: scale(0.65);
     }
     
     .error404-title {
