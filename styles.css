@@ -1,0 +1,552 @@
+@font-face {
+    font-family: 'FuturaHandwritten';
+    src: url('punkboy_tbs_bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #000;
+    cursor: url('assets/img/cursor_normal.png') 16 16, auto;
+}
+
+/* Force pointer cursor globally when hovering hint/knob */
+body.pointer-cursor {
+    cursor: url('assets/img/cursor_pointer.png') 16 16, auto !important;
+}
+
+.door-container {
+    width: 100vw;
+    height: 100vh;
+    background-image: url('assets/img/closed_door.png');
+    background-size: 120% 120%;
+    background-position: calc(50% + var(--panX, 0px)) center;
+    background-repeat: no-repeat;
+    transition: transform 0.1s ease-out;
+    user-select: none;
+    position: relative;
+    will-change: transform;
+    cursor: inherit;
+    perspective: 800px;
+    perspective-origin: center;
+}
+
+/* Knob glow overlay when hovering hint/knob */
+/* removed doorknob.png overlay */
+
+.door-container.opened {
+    background-image: url('assets/img/opened_door.png');
+    transition: background-image 0.3s ease;
+}
+
+/* Custom cursors */
+/* Remove global clicked cursor; cursor feedback only on clickable knobs */
+
+/* Doorknobs */
+.knob-overlay {
+    position: absolute;
+    inset: 0; /* full canvas to match door image */
+    background-size: 120% 120%; /* match .door-container */
+    background-position: calc(50% + var(--panX, 0px)) center;
+    background-repeat: no-repeat;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    z-index: 20;
+    cursor: inherit;
+}
+
+/* Removed :active cursor override to allow JS control */
+
+.knob-1 { background-image: url('assets/img/doorknob1.png'); }
+.knob-2 { background-image: url('assets/img/doorknob2.png'); }
+.knob-opened { background-image: url('assets/img/doorknob_opened.png'); }
+
+/* Frame overlay using APNG */
+.frame-overlay {
+    position: absolute;
+    inset: 0; /* full canvas to match door image */
+    background-image: url('assets/img/frame.png');
+    background-size: 120% 120%; /* match .door-container */
+    background-position: calc(50% + var(--panX, 0px)) center;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Paper overlay (APNG) same fit as frame - moves with background panning */
+.paper-overlay {
+    position: absolute;
+    inset: 0; /* full canvas to match door image */
+    background-image: url('assets/img/paper.png');
+    background-size: cover;
+    background-position: calc(50% + var(--panX, 0px)) center; /* Moves with pan */
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 12; /* above frame, below knobs */
+}
+
+/* Doorknob hint overlay - shown when pointing the hint/knob */
+.doorknob-hint-overlay {
+    position: absolute;
+    inset: 0; /* full canvas like closed_door.png */
+    background-image: url('assets/img/doorknob_hint.png');
+    background-size: inherit; /* match .door-container scaling across media queries */
+    background-position: calc(50% + var(--panX, 0px)) center;
+    background-repeat: inherit;
+    pointer-events: none;
+    z-index: 15; /* above dot(13), frame(10), paper(12); below knobs(20) */
+    opacity: 0;
+    transition: opacity 120ms ease;
+}
+
+.doorknob-hint-overlay.visible {
+    opacity: 1;
+}
+
+/* Backdrop overlay to block interactions when bubble is open */
+.bubble-backdrop {
+    position: fixed;
+    inset: 0;
+    background: transparent;
+    z-index: 25;
+    cursor: url('assets/img/cursor_normal.png') 16 16, auto;
+    pointer-events: auto;
+}
+
+.bubble-backdrop[hidden] {
+    display: none;
+}
+
+/* Entry bubble */
+.entry-bubble {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    /* Animation removed - no scale effect */
+}
+
+.bubble-content {
+    background: #fff;
+    border: 3px solid #000;
+    border-radius: 25px;
+    padding: 20px 30px;
+    text-align: center;
+    box-shadow: 0 8px 0 #000, 0 0 0 3px #000;
+    position: relative;
+    font-family: 'FuturaHandwritten', Arial, sans-serif;
+    pointer-events: auto;
+}
+
+.bubble-content::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 15px solid #000;
+}
+
+.bubble-content::before {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 12px solid #fff;
+}
+
+.bubble-text {
+    color: #000;
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin: 0 0 15px 0;
+    text-shadow: 1px 1px 0 #fff;
+    letter-spacing: 0.5px;
+}
+
+.bubble-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.bubble-btn {
+    padding: 12px 24px;
+    border: 3px solid #000;
+    border-radius: 20px;
+    background: #fff;
+    color: #000;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: url('assets/img/cursor_pointer.png') 16 16, pointer;
+    transition: all 0.2s ease;
+    min-width: 80px;
+    font-family: 'FuturaHandwritten', Arial, sans-serif;
+    box-shadow: 0 4px 0 #000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.bubble-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #000;
+}
+
+.bubble-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #000;
+}
+
+.bubble-yes:hover {
+    background: #90EE90;
+    border-color: #228B22;
+}
+
+.bubble-no:hover {
+    background: #FFB6C1;
+    border-color: #DC143C;
+}
+
+@keyframes bubbleAppear {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}
+
+/* White screen transition overlay */
+.white-screen-transition {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #ffffff;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.white-screen-transition.active {
+    opacity: 1;
+    pointer-events: auto;
+    cursor: none !important; /* Hide cursor during loading */
+}
+
+.white-screen-transition.active * {
+    cursor: none !important; /* Hide cursor on all child elements */
+}
+
+/* Loading progress bar - comic style */
+.loading-progress-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 80%;
+    max-width: 600px;
+}
+
+.progress-bar-wrapper {
+    width: 100%;
+    height: 60px;
+    position: relative;
+    border: 4px solid #000;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 6px 0 #000, 0 0 0 4px #000;
+    overflow: hidden;
+    transform: rotate(-0.5deg); /* Slight comic tilt */
+}
+
+.progress-bar-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #f0f0f0;
+    z-index: 1;
+}
+
+.progress-bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #90EE90 0%, #228B22 100%);
+    z-index: 2;
+    transition: width 0.5s ease; /* Slower transition for smoother animation */
+    border-right: 4px solid #000;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.loading-text {
+    font-family: 'FuturaHandwritten', Arial, sans-serif;
+    font-size: 32px;
+    font-weight: bold;
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;
+    transform: rotate(0.3deg); /* Slight comic tilt */
+}
+
+.loading-percentage {
+    font-family: 'FuturaHandwritten', Arial, sans-serif;
+    font-size: 48px;
+    font-weight: bold;
+    color: #000000;
+    text-shadow: 2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff;
+    transform: rotate(-0.2deg); /* Slight comic tilt */
+}
+.light-effect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 50%, transparent 100%);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1000;
+    animation: lightFlash 1s ease-out forwards;
+}
+
+@keyframes lightFlash {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Responsive design for circle */
+@media (max-width: 768px) {
+    .enter-circle {
+        width: 160px;
+        height: 160px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .enter-circle {
+        width: 140px;
+        height: 140px;
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+}
+
+@media (min-width: 1920px) {
+    .enter-circle {
+        width: 250px;
+        height: 250px;
+        font-size: 2rem;
+    }
+}
+
+/* Responsive design for different screen sizes */
+@media (min-width: 1920px) {
+    .door-container {
+        background-size: 100% 100%;
+    }
+    .knob-overlay {
+        background-size: 100% 100%;
+    }
+    .frame-overlay {
+        background-size: 100% 100%;
+    }
+}
+
+@media (max-width: 1366px) {
+    .door-container {
+        background-size: cover;
+    }
+    .knob-overlay {
+        background-size: cover;
+    }
+    .frame-overlay {
+        background-size: cover;
+    }
+}
+
+@media (max-width: 1024px) {
+    .door-container {
+        background-size: cover;
+    }
+    .knob-overlay {
+        background-size: cover;
+    }
+}
+
+@media (max-width: 768px) {
+    .door-container {
+        background-size: cover;
+    }
+    .knob-overlay {
+        background-size: cover;
+    }
+    .entry-bubble {
+        transform: translateX(-50%) scale(0.75);
+    }
+}
+
+@media (max-width: 480px) {
+    .door-container {
+        background-size: cover;
+    }
+    .knob-overlay {
+        background-size: cover;
+    }
+    .entry-bubble {
+        transform: translateX(-50%) scale(0.65);
+    }
+}
+
+/* Fixed minimal dot hint positioned over clickable area */
+.open-door-hint {
+    position: absolute; /* Relative to container, moves with background */
+    top: 0; /* positioned via JS */
+    left: 0; /* positioned via JS */
+    transform: translate(-50%, -50%);
+    display: block;
+    z-index: 13; /* below doorknob hint overlay (15), above frame (10) */
+    cursor: inherit;
+    pointer-events: none; /* do not block clicks; visibility handled via JS */
+}
+
+.open-door-hint[hidden] {
+    display: none !important;
+}
+
+/* Centered OPEN DOOR overlay */
+.open-door-center {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #ffffff;
+    font-weight: 1000;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-size: clamp(3rem, 10vw, 12rem);
+    text-align: center;
+    text-shadow: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: 35;
+    will-change: opacity, transform;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    white-space: nowrap; /* force single line */
+    max-width: 95vw; /* ensure fits on tiny screens */
+    overflow: hidden;
+}
+
+.open-door-center.visible {
+    opacity: 1;
+    animation: jumpOut 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (min-width: 1920px) {
+    .open-door-center { font-size: 10rem; }
+}
+
+@media (max-width: 768px) {
+    .open-door-center {
+        font-size: clamp(2.2rem, 12vw, 8rem);
+        letter-spacing: 2px;
+        top: 38%;
+        transform: translate(-50%, -50%) scale(0.75);
+    }
+}
+
+@media (max-width: 480px) {
+    .open-door-center {
+        font-size: clamp(1.8rem, 14vw, 6rem);
+        letter-spacing: 1px;
+        top: 36%;
+        transform: translate(-50%, -50%) scale(0.65);
+    }
+}
+
+.open-door-hint .hint-dot {
+    display: block;
+    width: 12px;
+    height: 12px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
+    animation: pulseDot 2s ease-out infinite;
+    transform-origin: center;
+}
+
+.open-door-hint.visible .hint-dot {
+    transform: scale(1.1);
+}
+
+@keyframes pulseDot {
+    0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6); }
+    70% { box-shadow: 0 0 0 12px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* Jumping out of the page effect */
+@keyframes jumpOut {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) translateZ(-240px) scale(0.85) rotateX(8deg);
+        filter: blur(1.5px);
+    }
+    55% {
+        opacity: 1;
+        transform: translate(-50%, -52%) translateZ(80px) scale(1.08) rotateX(-2deg);
+        filter: blur(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) translateZ(0) scale(1) rotateX(0deg);
+        filter: none;
+    }
+}
